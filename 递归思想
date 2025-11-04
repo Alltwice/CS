@@ -1,0 +1,17 @@
+using System;
+class Program
+{
+    static int JC(int a)
+    {
+        if (a == 1)//3.直到遇到这里，进入if语句，返回1，上层函数接受1，此时是2*返回的1=2
+        {
+            return 1;
+        }
+        return a * JC(a - 1);//2，这里接收了5并在返回值内计算，结果又遇到了函数，无结果，再次进入函数
+    }//4，上层函数继续接受2，此时是3*返回的2=6
+    //5，直到遇到5，所有函数计算完成，返回120
+    static void Main(string[] args)
+    {
+        Console.WriteLine(JC(5));//1，这里我们直接调用函数，传入参数5
+    }//6，主函数接受120，打印
+}
