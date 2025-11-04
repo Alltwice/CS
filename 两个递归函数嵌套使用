@@ -1,0 +1,25 @@
+using System;
+class Program
+{
+    
+    static int JC(int a)
+    {
+        if (a == 0)
+        {
+            return 1;
+        }
+        return (a * JC(a-1));
+    }
+    static int JCJ(int num)
+    {
+        if (num == 0)
+        {
+            return 1;
+        }
+        return JC(num) + JCJ(num - 1);//输入10，递归到JC中，返回计算后阶乘（有值）＋递归到输入9JCJ中（无值）重复上一步操作，最后回溯计算
+    }
+    static void Main(string[] args)
+    {
+        Console.WriteLine(JCJ(10));
+    }
+}
