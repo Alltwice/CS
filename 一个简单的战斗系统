@@ -1,0 +1,217 @@
+using System;
+class Program
+{
+    struct Monster
+    {
+        public string name;
+        public int atk;
+        public int hp;
+        public Monster(string name,int atk,int hp)
+        {
+            this.name = name;
+            this.atk = atk;
+            this.hp = hp;
+        }
+        public void information()
+        {
+            Console.WriteLine($"一个再常见不过的怪物，他们管它叫 {name} 是吗？  血量：{hp}点 ");
+        }
+    }
+    struct Hero
+    {
+        public string name;
+        public int atk;
+        public int hp;
+        public string Skill;
+        public Hero(string name, int atk, int hp, string Skill)
+        {
+            this.name = name;
+            this.atk = atk;
+            this.hp = hp;
+            this.Skill = Skill;
+        }
+        public void information()
+        {
+            Console.WriteLine($"你的名字是 {name} ，刚刚学习了{Skill}。 血量：{hp}点 ");
+        }
+    }
+    enum E_skill
+    {
+        chongji=1,
+        dunji,
+    }
+    static void atk(int matk,int hatk,ref int mhp,ref int hhp,string mname,string hname,string skill)
+    {
+        int scount = 0;
+        bool fight = true;
+        Random r = new Random();
+        while (true)
+        {
+            char button = Console.ReadKey(true).KeyChar;
+            int NmAtk = r.Next(1, 6);
+            int NhAtk = r.Next(2, 7);
+            switch (button)
+            {
+                case 'j':
+                case 'J':
+                    scount--;
+                    hhp -= NmAtk;
+                    mhp -= NhAtk;
+                    if (mhp <= 0)
+                    {
+                        Console.WriteLine($"{mname}死亡");
+                        fight = false;
+                        break;
+                    }
+                    Console.WriteLine($"{hname}对{mname}造成了{NhAtk}点伤害，{mname}还剩{mhp}点血");
+                    Console.WriteLine($"{mname}对{hname}造成了{NmAtk}点伤害，{hname}还剩{hhp}点血");
+                    break;
+                case 'k':
+                case 'K':
+                    if (scount <= 0)
+                    {
+                        if (skill == "冲击")
+                        {
+                            Console.WriteLine($"{hname}使用了冲击！");
+                            hhp -= NmAtk;
+                            mhp -= 2 * NhAtk;
+                            if (mhp <= 0)
+                            {
+                                Console.WriteLine($"{mname}死亡");
+                                fight = false;
+                                break;
+                            }
+                            Console.WriteLine($"{hname}造成了暴击！");
+                            Console.WriteLine($"{hname}对{mname}造成了{NhAtk * 2}点伤害，{mname}还剩{mhp}点血");
+                            Console.WriteLine($"{mname}对{hname}造成了{NmAtk}点伤害，{hname}还剩{hhp}点血");
+                            scount = 2;
+                            break;
+                        }
+                        else if (skill == "钝击")
+                        {
+                            Console.WriteLine($"{hname}使用了钝击！");
+                            mhp -= hatk;
+                            if (mhp <= 0)
+                            {
+                                Console.WriteLine($"{mname}死亡");
+                                fight = false;
+                                break;
+                            }
+                            Console.WriteLine($"{mname}陷入眩晕！");
+                            Console.WriteLine($"{hname}对{mname}造成了{NhAtk}点伤害，{mname}还剩{mhp}点血");
+                            scount = 2;
+                            break;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"技能还剩{scount}回合！");
+                        break;
+                    }
+            }
+            if (fight == false)
+            {
+                break;
+            }
+        }
+    }
+    static void Main(string[] args)
+    {
+        Random r = new Random();
+        string mname = "原石虫", hname = "Reborn";
+        int mhp = 30,hhp = 40;
+        string skill = "nop";
+        try
+        {
+            while (true)
+            {
+                bool exchose = false;
+                Console.WriteLine("升级，你可以选择一项技能，1，选择冲击（向前冲撞攻击，造成2x伤害） 2，选择钝击（有力的钝器攻击，使对方眩晕）");
+                int choseskill = int.Parse(Console.ReadLine());
+                E_skill whatskill = (E_skill)choseskill;
+                switch (whatskill)
+                {
+                    case E_skill.chongji:
+                        Console.WriteLine("你选择了冲击");
+                        skill = "冲击";
+                        exchose = true;
+                        break;
+                    case E_skill.dunji:
+                        skill = "钝击";
+                        Console.WriteLine("你选择了钝击");
+                        exchose = true;
+                        break;
+                    default:
+                        Console.WriteLine("请重新选择");
+                        Console.WriteLine();
+                        break;
+                }
+                if (exchose == true)
+                {
+                    break;
+                }
+            }
+            
+            while (true)
+            {
+                bool fight = true;
+                int matk = r.Next(1, 6), hatk = r.Next(2, 7);
+                Monster monster = new Monster(mname, matk, mhp);
+                Hero hero = new Hero(hname, hatk, hhp, skill);
+                Console.WriteLine();
+                Console.WriteLine("按P查看敌我信息");
+                Console.WriteLine("按J进入战斗");
+                char c = Console.ReadKey(true).KeyChar;
+                switch (c)
+                {
+                    case 'P':
+                    case 'p':
+                        monster.information();
+                        hero.information();
+                        break;
+                    case 'J':
+                    case 'j':
+                        Console.WriteLine("进入战斗，按j普通攻击，k使用技能");
+                        while (true)
+                        {
+                            char cc = Console.ReadKey(true).KeyChar;
+                            Console.WriteLine($"{mname}的血量是{mhp}");
+                            Console.WriteLine($"{hname}的血量是{hhp}");
+                            Console.WriteLine();
+                            switch (cc)
+                            {
+                                case 'J':
+                                case 'j':
+                                    atk(matk, hatk, ref mhp, ref hhp, mname, hname, skill);
+                                    fight = false;
+                                    break;
+                                case 'k':
+                                case 'K':
+                                    atk(matk, hatk, ref mhp, ref hhp, mname, hname, skill);
+                                    fight = false;
+                                    break;
+                            }
+                            if (fight == false)
+                            {
+                                break;
+                            }
+                        }
+                        break;
+
+                }
+                if (fight == false)
+                {
+                    break;
+                }
+            }
+        }
+        catch
+        {
+            Console.WriteLine("发生错误");
+        }
+    }
+}
