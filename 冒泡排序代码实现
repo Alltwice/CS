@@ -6,8 +6,8 @@ class Program
         int[] arr = new int[] { 8, 9, 4, 5, 3, 1, 10 };
         for(int i = 0; i < arr.Length; i++)
         {
-            for(int j = 0; j < arr.Length - 1; j++)//因要比较前一位和后一位的大小难免会出现最后一位越界的情况，因此将长度设为Length-1
-            {
+            for (int j = 0; j < arr.Length - 1 - i; j++) //因要比较前一位和后一位的大小难免会出现最后一位越界的情况，因此将长度设为Length-1
+            {//注意这里，Length-1-i是一种优化方法，可以确定已经确定值的位置从而不用再次比较
                 if (arr[j] > arr[j + 1])
                 {
                     int temp = arr[j];//临时储存大法
