@@ -6,14 +6,20 @@ class Program
         int[] arr = new int[] { 8, 9, 4, 5, 3, 1, 10 };
         for(int i = 0; i < arr.Length; i++)
         {
+            bool finishsort = false;
             for (int j = 0; j < arr.Length - 1 - i; j++) //因要比较前一位和后一位的大小难免会出现最后一位越界的情况，因此将长度设为Length-1
             {//注意这里，Length-1-i是一种优化方法，可以确定已经确定值的位置从而不用再次比较
                 if (arr[j] > arr[j + 1])
                 {
+                    finishsort = true;
                     int temp = arr[j];//临时储存大法
                     arr[j] = arr[j + 1];
                     arr[j + 1] = temp;
                 }
+            }
+            if (finishsort == false)//再次优化，如果再上面排序时一次都没有进入循环，也就是后值始终比前值大
+            {//意味着排序完成，不必再进入外层循环去再次判断，进一步节约性能
+                break;
             }
         }
         for(int t = 0; t < arr.Length; t++)//等排序完再输出
@@ -21,4 +27,4 @@ class Program
             Console.WriteLine(arr[t]);
         }
     }
-}
+}//注意两次优化
