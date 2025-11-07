@@ -4,10 +4,10 @@ class Program
     static void Main(string[] args)
     {//选择排序在思维和代码实现上感觉都比冒泡更难理解
         int[] arr = new int[] { 8, 1, 1, 9, 2 };
-        int now = 0;
         int temp = 0;//在循环外定义能节省一定性能开销
         for(int i = 0; i < arr.Length; i++)
         {
+            int now = 0;//每次都刷新到第一位开始
             for(int j = 0; j < arr.Length - i; j++)//和冒泡同样的遍历思维
             {
                 if (arr[now] < arr[j])//这里默认第一个数据是最大值，然后去找最大值
