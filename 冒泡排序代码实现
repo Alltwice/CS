@@ -1,0 +1,24 @@
+using System;
+class Program
+{
+    static void Main(string[] args)
+    {
+        int[] arr = new int[] { 8, 9, 4, 5, 3, 1, 10 };
+        for(int i = 0; i < arr.Length; i++)
+        {
+            for(int j = 0; j < arr.Length - 1; j++)//因要比较前一位和后一位的大小难免会出现最后一位越界的情况，因此将长度设为Length-1
+            {
+                if (arr[j] > arr[j + 1])
+                {
+                    int temp = arr[j];//临时储存大法
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        for(int t = 0; t < arr.Length; t++)//等排序完再输出
+        {
+            Console.WriteLine(arr[t]);
+        }
+    }
+}
