@@ -33,3 +33,39 @@ class Program
         Sort(arr);
     }
 }
+-----------------------------------------------------------------------------------------------------------------
+using System;
+class Program
+{
+    static void Sort(int[] arr)
+    {
+        for(int i = 0; i < arr.Length; i++)
+        {
+            bool finishsort = true;
+            for (int j = 0; j < arr.Length - 1 - i; j++)  
+            {
+                finishsort = false;
+                if (arr[j] < arr[j+1])//该符号就好，我是煞笔
+                {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+            if (finishsort == true)
+            {
+                break;
+            }
+        }
+        for(int t = 0; t < arr.Length; t++)
+        {
+            Console.Write(arr[t]);
+            Console.Write(" ");
+        }
+    }
+    static void Main()
+    {
+        int[] arr = new int[] { 3, 4, 5, 9, 1, 6, 2, 8 };
+        Sort(arr);
+    }
+}
