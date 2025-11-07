@@ -1,0 +1,35 @@
+using System;
+class Program
+{
+    static void Sort(int[] arr)
+    {
+        for(int i = 0; i < arr.Length; i++)
+        {
+            bool finishsort = true;
+            for (int j = arr.Length - 1; j > i; j--) //注意反向排序的逻辑，数组从0开始，则你要从数组前一位开始遍历，防止越界
+            {//一直遍历到0，也就是i，同时i++，相当于每次不去遍历那个已经排好的东西
+                finishsort = false;
+                if (arr[j] > arr[j-1])
+                {
+                    int temp = arr[j - 1];
+                    arr[j - 1] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+            if (finishsort == true)
+            {
+                break;
+            }
+        }
+        for(int t = 0; t < arr.Length; t++)
+        {
+            Console.Write(arr[t]);
+            Console.Write(" ");
+        }
+    }
+    static void Main()
+    {
+        int[] arr = new int[] { 3, 4, 5, 9, 1, 6, 2, 8 };
+        Sort(arr);
+    }
+}
