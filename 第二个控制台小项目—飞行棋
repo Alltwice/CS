@@ -1,0 +1,511 @@
+using System;
+using System.Reflection.Metadata.Ecma335;
+class Program
+{
+    #region 主函数调用函数，基础数据定义
+    static void Main(string[] args)
+    {
+        byte wide = 50, high = 30;
+        E_environmentchange environmentchange = E_environmentchange.begin;
+        ConsoleSettings(wide, high);
+        enviromentc(wide, high, ref environmentchange);
+    }
+    #endregion
+    #region 1.控制台相关设置
+    static void ConsoleSettings(int wide, int high)
+    {
+        Console.SetWindowSize(wide, high);
+        Console.SetBufferSize(wide, high);
+        Console.CursorVisible = false;
+    }
+    #endregion
+    #region 2.场景切换
+    static void enviromentc(int wide, int high, ref E_environmentchange environmentchange)
+    {
+        while (true)
+        {
+            switch (environmentchange)
+            {
+                case E_environmentchange.begin:
+                    BeginEnvironment(wide, high, ref environmentchange);
+                    break;
+                case E_environmentchange.gmae:
+                    GameEnviroment(wide, high, ref environmentchange);
+                    break;
+                case E_environmentchange.end:
+                    Endenviroment(wide, high, ref environmentchange);
+                    break;
+            }
+        }
+    }
+    #endregion
+    #region 2.1场景切换枚举
+    enum E_environmentchange
+    {
+        begin,
+        gmae,
+        end,
+    }
+    #endregion
+    #region 2.2开始场景
+    static void BeginEnvironment(int wide, int high, ref E_environmentchange environmentchange)
+    {
+        Console.Clear();
+        int choose = 1;
+        Console.SetCursorPosition(wide / 2 - 3, high - 25);
+        Console.Write("飞行棋");
+        bool exit = false;
+        while (true)
+        {
+            Console.ForegroundColor = choose == 1 ? ConsoleColor.Red : ConsoleColor.White;
+            Console.SetCursorPosition(wide / 2 - 4, high - 15);
+            Console.Write("开始游戏");
+            Console.ForegroundColor = choose == 0 ? ConsoleColor.Red : ConsoleColor.White;
+            Console.SetCursorPosition(wide / 2 - 4, high - 12);
+            Console.Write("结束游戏");
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.W:
+                    choose++;
+                    if (choose > 1)
+                    {
+                        choose--;
+                    }
+                    break;
+                case ConsoleKey.S:
+                    choose--;
+                    if (choose < 0)
+                    {
+                        choose++;
+                    }
+                    break;
+                case ConsoleKey.J:
+                case ConsoleKey.Enter:
+                    if (choose == 1)
+                    {
+                        environmentchange = E_environmentchange.gmae;
+                        exit = true;
+                    }
+                    else if (choose == 0)
+                    {
+                        Environment.Exit(0);
+                    }
+                    break;
+            }
+            if (exit == true)
+            {
+                break;
+            }
+        }
+    }
+    #endregion
+    #region 2.3游戏场景
+    static void GameEnviroment(int wide, int high,ref E_environmentchange environmentchange)
+    {
+        Console.Clear();
+        walltext(wide, high);
+        Map map = new Map(14, 3, 80);
+        map.Drawmap();
+        Player player = new Player(E_PlayerType.Player, 0,false);
+        Player computer = new Player(E_PlayerType.Computer, 0,false);
+        Drawplaye(map, player, computer);
+        while (true)
+        {
+            if(PlayerRemove(wide, high, ref player, ref computer, map, ref environmentchange))
+            {
+                break;
+            }
+            if (PlayerRemove(wide, high, ref computer, ref player, map, ref environmentchange))
+            {
+                break;
+            }
+        }
+    }
+    #endregion
+     #region 2.3.1绘制不变地图，文本
+    static void walltext(int wide, int high)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        for (int i = 0; i < wide; i += 2)
+        {
+            Console.SetCursorPosition(i, 0);
+            Console.Write("■");
+            Console.SetCursorPosition(i, high - 1);
+            Console.Write("■");
+            Console.SetCursorPosition(i, high - 11);
+            Console.Write("■");
+            Console.SetCursorPosition(i, high - 6);
+            Console.Write("■");
+        }
+        for (int j = 0; j < high; j++)
+        {
+            Console.SetCursorPosition(0, j);
+            Console.Write("■");
+            Console.SetCursorPosition(wide - 2, j);
+            Console.Write("■");
+        }
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.SetCursorPosition(2, high - 10);
+        Console.Write("□:普通格子");
+
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.SetCursorPosition(2, high - 9);
+        Console.Write("‖:暂停，一回合不动");
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.SetCursorPosition(26, high - 9);
+        Console.Write("●:炸弹，倒退5格");
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.SetCursorPosition(2, high - 8);
+        Console.Write("¤:时空隧道，随机倒退，暂停，换位置");
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.SetCursorPosition(2, high - 7);
+        Console.Write("★:玩家");
+
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.SetCursorPosition(12, high - 7);
+        Console.Write("▲:电脑");
+
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.SetCursorPosition(22, high - 7);
+        Console.Write("◎:玩家和电脑重合");
+
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.SetCursorPosition(2, high - 5);
+        Console.Write("按任意键开始扔色子");
+    }
+    #endregion
+     #region 2.3.2格子枚举,结构体
+    enum E_grid
+    {
+        normal,
+        boom,
+        pause,
+        tunnel,
+    }
+    struct vector2
+    {
+        public int x;
+        public int y;
+        public vector2(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
+    struct Grid
+    {
+        public E_grid type;
+        public vector2 pos;
+        public Grid(int x, int y, E_grid type)
+        {
+            pos.x = x;
+            pos.y = y;
+            this.type = type;
+        }
+        public void DrawGird()
+        {
+            Console.SetCursorPosition(pos.x, pos.y);
+            switch (type)
+            {
+                case E_grid.normal:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write("□");
+                    break;
+                case E_grid.boom:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("●");
+                    break;
+                case E_grid.pause:
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("‖");
+                    break;
+                case E_grid.tunnel:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("¤");
+                    break;
+            }
+        }
+    }
+    #endregion
+      #region 地图生成逻辑
+    struct Map
+    {
+        public Grid[] grids;
+        public Map(int x, int y, int num)
+        {
+            grids = new Grid[num];
+            Random r = new Random();
+            int change_x = 0;
+            int change_y = 0;
+            int step = 2;
+            for (int i = 0; i < num; i++)
+            {
+                int t = r.Next(0, 101);
+                if (t < 85 || t == 0 || t == num - 1)
+                {
+                    grids[i].type = E_grid.normal;
+                }
+                else if (t >= 85 && t < 90)
+                {
+                    grids[i].type = E_grid.boom;
+                }
+                else if (t >= 90 && t < 95)
+                {
+                    grids[i].type = E_grid.pause;
+                }
+                else
+                {
+                    grids[i].type = E_grid.tunnel;
+                }
+                grids[i].pos = new vector2(x, y);
+                if (change_x == 10)
+                {
+                    y++;
+                    change_y++;
+                    if (change_y == 2)
+                    {
+                        change_x = 0;
+                        change_y = 0;
+                        step = -step;
+                    }
+                }
+                else
+                {
+                    x += step;
+                    change_x++;
+                }
+            }
+        }
+        public void Drawmap()
+        {
+            for (int i = 0; i < grids.Length; i++)
+            {
+                grids[i].DrawGird();
+            }
+        }
+    }
+    #endregion
+      #region 玩家枚举，结构体,函数绘制方法
+    static void Drawplaye(Map map, Player player, Player Computer)
+    {
+        if (player.nowindex == Computer.nowindex)
+        {
+            Grid grid = map.grids[player.nowindex];
+            Console.SetCursorPosition(grid.pos.x, grid.pos.y);
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.Write("◎");
+        }
+        else
+        {
+            Computer.Drawplayer(map);
+            player.Drawplayer(map);
+        }
+    }
+    enum E_PlayerType
+    {
+        Player,
+        Computer,
+    }
+    struct Player
+    {
+        public bool ispause;
+        public E_PlayerType type;
+        public int nowindex;
+        public Player(E_PlayerType type,int nowindex,bool ispause)
+        {
+            this.ispause = ispause;
+            this.type = type;
+            this.nowindex = nowindex;
+        }
+        public void Drawplayer(Map mapinfo)
+        {
+            Grid grid = mapinfo.grids[nowindex];
+            Console.SetCursorPosition(grid.pos.x, grid.pos.y);
+            switch (type)
+            {
+                case E_PlayerType.Player:
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write("★");
+                    break;
+                case E_PlayerType.Computer:
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.Write("▲");
+                    break;
+            }
+        }
+    }
+    #endregion
+    #region 2.3.3扔骰子逻辑
+    static void Clearinfo(int high)
+    {
+        Console.SetCursorPosition(2, high - 5);
+        Console.Write("                                          ");
+        Console.SetCursorPosition(2, high - 4);
+        Console.Write("                                          ");
+        Console.SetCursorPosition(2, high - 3);
+        Console.Write("                                          ");
+        Console.SetCursorPosition(2, high - 2);
+        Console.Write("                                          ");
+    }
+    static bool RandomRemove(int w,int h,ref Player p1,ref Player p2, Map map)
+    {
+        Clearinfo(h);
+        if (p1.ispause == true)
+        {
+            Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+            Console.SetCursorPosition(2, h - 5);
+            Console.Write("{0} 休息中！", p1.type == E_PlayerType.Player ? "你" : "电脑");
+            p1.ispause = false;
+            return false;
+        }
+        Random r = new Random();
+        int Randomnum = r.Next(1, 7);
+        p1.nowindex += Randomnum;
+        Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+        Console.SetCursorPosition(2, h - 5);
+        Console.Write("{0} 掷出了{1}点！", p1.type == E_PlayerType.Player ? "你" : "电脑",Randomnum);
+        if (p1.nowindex >= map.grids.Length - 1)
+        {
+            Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+            Console.SetCursorPosition(2, h - 5);
+            Console.Write("{0} 到达了终点,{1}赢了！", p1.type == E_PlayerType.Player ? "你" : "电脑",p1.type == E_PlayerType.Player ? "你" : "电脑");
+            p1.nowindex = map.grids.Length - 1;
+            return true;
+        }
+        else
+        {
+            Grid grid = map.grids[p1.nowindex];
+            if (grid.type == E_grid.normal)
+            {
+                Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                Console.SetCursorPosition(2, h - 4);
+                Console.Write("{0} 到达了一个安全的地方", p1.type == E_PlayerType.Player ? "你" : "电脑");
+            }
+            if (grid.type == E_grid.boom)
+            {
+                Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                Console.SetCursorPosition(2, h - 4);
+                Console.Write("{0} 不幸的踩中了炸弹！倒退5格！", p1.type == E_PlayerType.Player ? "你" : "电脑");
+                p1.nowindex -= 5;
+                if (p1.nowindex < 0)
+                {
+                    p1.nowindex = 0;
+                }
+            }
+            else if (grid.type == E_grid.pause)
+            {
+                Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                Console.SetCursorPosition(2, h - 4);
+                Console.Write("{0} 暂停！休息一回合。", p1.type == E_PlayerType.Player ? "你" : "电脑");
+                p1.ispause = true;
+            }
+            else if (grid.type == E_grid.tunnel)
+            {
+                int random = r.Next(1, 91);
+                if (random <= 30)
+                {
+                    Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                    Console.SetCursorPosition(2, h - 4);
+                    Console.Write("{0} 进入了时空隧道，倒退5格！", p1.type == E_PlayerType.Player ? "你" : "电脑");
+                    p1.nowindex -= 5;
+                    if (p1.nowindex < 0)
+                    {
+                        p1.nowindex = 0;
+                    }
+                }
+                else if (random <= 60 && random > 30) 
+                {
+                    Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                    Console.SetCursorPosition(2, h - 4);
+                    Console.Write("{0} 进入了时空隧道，休息一回合！", p1.type == E_PlayerType.Player ? "你" : "电脑");
+                    p1.ispause = true;
+                }
+                else if (random > 60)
+                {
+                    Console.ForegroundColor = p1.type == E_PlayerType.Player ? ConsoleColor.Cyan : ConsoleColor.Magenta;
+                    Console.SetCursorPosition(2, h - 4);
+                    Console.Write("{0} 进入了时空隧道，和其他人的位置互换了！", p1.type == E_PlayerType.Player ? "你" : "电脑");
+                    int temp = p2.nowindex;
+                    p2.nowindex = p1.nowindex;
+                    p1.nowindex = temp;
+                }
+            }
+        }
+            return false;
+    }
+    static bool PlayerRemove(int w, int h,ref Player player,ref Player computer, Map map, ref E_environmentchange environmentchange)
+    {
+        Console.ReadKey(true);
+        bool gameover = RandomRemove(w, h, ref player, ref computer, map);
+        map.Drawmap();
+        Drawplaye(map, player, computer);
+        if (gameover == true)
+        {
+            Console.ReadKey(true);
+            Clearinfo(h);
+            Console.SetCursorPosition(2, h - 5);
+            Console.Write("按任意键结束游戏！");
+            Console.ReadKey(true);
+            environmentchange = E_environmentchange.end;
+            return true;
+        }
+        return false;
+    }
+    #endregion
+    #region 结束场景
+    static void Endenviroment(int wide, int high, ref E_environmentchange environmentchange)
+    {
+        Console.Clear();
+        int choose = 1;
+        Console.SetCursorPosition(wide / 2 - 4, high - 25);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("游戏结束");
+        bool exit = false;
+        while (true)
+        {
+            Console.ForegroundColor = choose == 1 ? ConsoleColor.Red : ConsoleColor.White;
+            Console.SetCursorPosition(wide / 2 - 5, high - 15);
+            Console.Write("返回主菜单");
+            Console.ForegroundColor = choose == 0 ? ConsoleColor.Red : ConsoleColor.White;
+            Console.SetCursorPosition(wide / 2 - 4, high - 12);
+            Console.Write("退出游戏");
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.W:
+                    choose++;
+                    if (choose > 1)
+                    {
+                        choose--;
+                    }
+                    break;
+                case ConsoleKey.S:
+                    choose--;
+                    if (choose < 0)
+                    {
+                        choose++;
+                    }
+                    break;
+                case ConsoleKey.J:
+                case ConsoleKey.Enter:
+                    if (choose == 1)
+                    {
+                        environmentchange = E_environmentchange.begin;
+                        exit = true;
+                    }
+                    else if (choose == 0)
+                    {
+                        Environment.Exit(0);
+                    }
+                    break;
+            }
+            if (exit == true)
+            {
+                break;
+            }
+        }
+    }
+    #endregion
+}
