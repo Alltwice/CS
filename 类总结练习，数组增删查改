@@ -1,0 +1,156 @@
+using System;
+class Num
+{
+    int[] arr;
+    public Num()
+    {
+        arr = new int[] { 7, 8, 4, 5, 6 };
+    }
+    public void Delete(int d)
+    {
+        --d;
+        if (d < 0)
+        {
+            d = 0;
+        }
+        if (d > arr.Length)
+        {
+            d = arr.Length-1;
+        }
+        int[] arr1 = new int[arr.Length-1];
+        for(int i = 0; i < d; i++)
+        {
+            arr1[i] = arr[i];
+        }
+        for(int j = d; j < arr1.Length; j++)
+        {
+            arr1[j] = arr[j + 1];
+        }
+        arr = arr1;
+        Console.WriteLine("删除成功！");
+    }
+    public void Increase(int i,int v)
+    {
+        --i;
+        if (i < 0)
+        {
+            i = 0;
+        }
+        if (i > arr.Length)
+        {
+            i = arr.Length;
+        }
+            int[] arr1 = new int[arr.Length+1];
+            for(int t = 0; t < i; t++)
+            {
+                arr1[t] = arr[t];
+            }
+            arr1[i] = v;
+            for(int j = i; j < arr1.Length-1; j++)
+            {
+                arr1[j + 1] = arr[j];
+            }
+            arr=arr1;
+            Console.WriteLine("插入成功！");
+    }
+    public void Find(int f)
+    {
+        for(int i = 0; i < arr.Length; i++)
+        {
+            if (arr[i] == f)
+            {
+                Console.WriteLine($"数字{f}在数组的第{i + 1}位");
+                Console.WriteLine();
+                return;
+            }
+        }
+        Console.WriteLine("该组中无相关数据");
+        Console.WriteLine();
+    }
+    public void Info()
+    {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                Console.Write(arr[i]);
+                Console.Write(" ");
+            }
+            Console.WriteLine();
+    }
+}
+class Program
+{
+    static void Arr(Num num)
+    {
+        while (true)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("输入I显示当前数组中内容");
+            Console.WriteLine("输入C向数组中添加内容");
+            Console.WriteLine("数入D向删减数组中内容");
+            Console.WriteLine("输入F查找当前数组中数字位置");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+            switch (Console.ReadKey(true).Key)
+            {
+                case ConsoleKey.F:
+                    Console.WriteLine("输入数字查找其位置");
+                    while (true)
+                    {
+                        try
+                        {
+                            num.Find(int.Parse(Console.ReadLine()));
+                            break;
+                        }
+                        catch
+                        {
+                            Console.WriteLine("输入内容不正确，请重新输入");
+                            Console.WriteLine();
+                        }
+                    }
+                    break;
+                case ConsoleKey.I:
+                    num.Info();
+                    break;
+                case ConsoleKey.C:
+                    while (true)
+                    {
+                        try
+                        {
+                            Console.WriteLine("先输入想要在什么位置插入，后输入要插入的值");
+                            num.Increase(int.Parse(Console.ReadLine()), int.Parse(Console.ReadLine()));
+                            break;
+                        }
+                        catch
+                        {
+                            Console.WriteLine("请输入有效值");
+                        }
+                    }
+                    break;
+                case ConsoleKey.D:
+                    while (true)
+                    {
+                        Console.WriteLine("输入想要删除什么位置的数");
+                        try
+                        {
+                            num.Delete(int.Parse(Console.ReadLine()));
+                            break;
+                        }
+                        catch
+                        {
+                            Console.WriteLine("请输入有效内容！");
+                        }
+                    }
+                    break;
+                default:
+                    Console.WriteLine("输入内容不正确，请重新输入");
+                    Console.WriteLine();
+                    break;
+            }
+        }
+    }
+    static void Main(string[] args)
+    {
+        Num num = new Num();
+        Arr(num);
+    }
+}
