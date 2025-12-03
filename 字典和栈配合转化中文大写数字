@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
+using System.Collections;
+class Program
+{
+    static void ChineseNum(int x)
+    {
+        int now;
+        Dictionary<int, string> dic = new Dictionary<int, string>();
+        Stack<int>stack = new Stack<int>();
+        dic.Add(1, "壹");
+        dic.Add(2, "贰");
+        dic.Add(3, "叁");
+        dic.Add(4, "肆");
+        dic.Add(5, "伍");
+        dic.Add(6, "陆");
+        dic.Add(7, "柒");
+        dic.Add(8, "捌");
+        dic.Add(9, "玖");
+        dic.Add(0, "零");
+        if (x > 999 || x < 0)
+        {
+            Console.WriteLine("输入不正确!");
+        }
+        else
+        {
+            if(x==0)
+            {
+                Console.Write(dic[0]);
+            }
+            while (x != 0)
+            {
+                stack.Push(x % 10);
+                x /= 10;
+            }
+            while(stack.Count>0)
+            {
+                Console.Write(dic[stack.Pop()]);
+            }
+        }
+    }
+    static void Main(string[] args)
+    {
+        int x = int.Parse(Console.ReadLine());
+        ChineseNum(x);
+    }
+}
