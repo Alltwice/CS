@@ -1,0 +1,28 @@
+using System;
+
+class Test<T>where T:new()//这里约束存在无参构造
+{
+    private static T instance = new T();//私有静态实例保证存在唯一实例
+    public static T Instance//提供访问入口
+    {
+        get
+        {
+            return instance;
+        }
+    }
+}
+class BagManager:Test<BagManager>//继承后单例模式逻辑以写好
+{//在该实例里写其他逻辑直接调用即可
+    public int value;
+    public BagManager()
+    {
+        value = 10;
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine(BagManager.Instance.value);
+    }
+}
