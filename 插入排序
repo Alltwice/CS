@@ -22,6 +22,22 @@ class Program
             }
         }
     }
+//----------------------------------------------------------------------------------
+//这里是一个优化版本
+    static void sort(int[] arr)
+    {
+        int temp;//这里新建一个临时数值，始终指向第一个无需部分数值
+        for(int i=1;i<arr.Length;i++)
+        {
+            temp = arr[i];
+            int j=i-1;//这里的值始终指向有序区的最后一个数值
+            while (j > 0 && arr[j]>temp)
+            {
+                arr[j + 1] = arr[j];//这里的while操作减少了一次赋值操作
+                j--;
+            }
+        }
+    }
     static void Main(string[] args)
     {
         int[] ints = new int[] { 1, 4, 32, 123, 6, 8, 3 };
