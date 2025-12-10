@@ -1,0 +1,41 @@
+using System;
+using System.Data;
+class Program
+{
+    static void sort(int[] arr)
+    {
+        int temp;//这里新建一个临时数值，始终指向第一个无需部分数值
+        for(int i=1;i<arr.Length;i++)
+        {
+            temp = arr[i];
+            for(int j=i-1;j>=0;j--)//返回到有序部分和无序部分进行比较
+            {
+                if (arr[j]>temp)//有序值大于了无需值进行交换，同时继续下一轮比较
+                {
+                    arr[j + 1] = arr[j];//中间值进行交换
+                    arr[j] = temp;
+                }
+                else
+                {
+                    break;//如果出现没有交换的情况即前部分满足有序条件直接跳出循环
+                }
+            }
+        }
+    }
+    static void Main(string[] args)
+    {
+        int[] ints = new int[] { 1, 4, 32, 123, 6, 8, 3 };
+        for(int i=0;i<ints.Length;i++)
+        {
+            Console.Write(ints[i]);
+            Console.Write(" ");
+        }
+        sort(ints);
+        Console.WriteLine();
+        for (int i = 0; i < ints.Length; i++)
+        {
+            Console.Write(ints[i]);
+            Console.Write(" ");
+        }
+    }
+}
